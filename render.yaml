@@ -1,0 +1,113 @@
+services:
+  - type: keyvalue
+    name: scalemart-redis
+    plan: free
+    ipAllowList: []
+    maxmemoryPolicy: allkeys-lru
+
+  - type: web
+    name: scalemart-redpanda
+    runtime: image
+    plan: free
+    image:
+      url: redpandadata/redpanda:v24.2.18
+    healthCheckPath: /v1/status/ready
+    dockerCommand: >
+      redpanda start --overprovisioned --smp 1 --memory 384M --reserve-memory 0M
+      --node-id 0 --check=false
+      --kafka-addr PLAINTEXT://0.0.0.0:9092
+      --advertise-kafka-addr PLAINTEXT://scalemart-redpanda:9092
+      --pandaproxy-addr PLAINTEXT://0.0.0.0:8082
+      --advertise-pandaproxy-addr PLAINTEXT://scalemart-redpanda:8082
+      --rpc-addr 0.0.0.0:33145
+      --advertise-rpc-addr scalemart-redpanda:33145
+      --set redpanda.auto_create_topics_enabled=true
+    envVars:
+      - key: PORT
+        value: "9644"
+
+  - type: web
+    name: scalemart-api
+    runtime: docker
+    plan: free
+    dockerContext: backend-api
+    dockerfilePath: backend-api/Dockerfile
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_AUTH_EXPOSE_DEBUG_TOKENS
+        value: "false"
+      - key: APP_SEED_DEMO_USERS
+        value: "true"
+      - key: APP_MAIL_ENABLED
+        value: "false"
+      - key: APP_CORS_ALLOWED_ORIGINS
+        value: "https://*.onrender.com,http://localhost:5173"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: scalemart-postgres
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: scalemart-postgres
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: scalemart-postgres
+          property: password
+      - key: SPRING_DATA_REDIS_HOST
+        fromService:
+          type: keyvalue
+          name: scalemart-redis
+          property: host
+      - key: SPRING_DATA_REDIS_PORT
+        fromService:
+          type: keyvalue
+          name: scalemart-redis
+          property: port
+      - key: SPRING_KAFKA_HOST
+        fromService:
+          type: web
+          name: scalemart-redpanda
+          property: host
+      - key: SPRING_KAFKA_PORT
+        value: "9092"
+
+  - type: web
+    name: scalemart-worker
+    runtime: docker
+    plan: free
+    dockerContext: worker-service
+    dockerfilePath: worker-service/Dockerfile
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_KAFKA_HOST
+        fromService:
+          type: web
+          name: scalemart-redpanda
+          property: host
+      - key: SPRING_KAFKA_PORT
+        value: "9092"
+
+  - type: web
+    name: scalemart-frontend
+    runtime: static
+    buildCommand: 'cd frontend && npm ci && VITE_API_BASE="${API_EXTERNAL_URL}/api/v1" npm run build'
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: API_EXTERNAL_URL
+        fromService:
+          type: web
+          name: scalemart-api
+          envVarKey: RENDER_EXTERNAL_URL
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: scalemart-postgres
+    databaseName: scalemart
+    user: scalemart
+    plan: free

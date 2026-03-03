@@ -232,6 +232,15 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 
 4. Publish `443` behind your cloud load balancer/reverse proxy (HTTPS), and point DNS to that host.
 
+## Render Deployment
+
+This repo includes a Render Blueprint:
+
+- `render.yaml` for full stack provisioning
+- `RENDER_DEPLOY.md` for step-by-step setup
+
+Use Render Dashboard -> `New` -> `Blueprint`, select this repo, and deploy.
+
 ## Key Features Demonstrated
 
 | Feature | Technology | Interview Value |
