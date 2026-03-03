@@ -1,11 +1,13 @@
 server:
-  port: 8081
+  port: ${PORT:8081}
 
 spring:
   application:
     name: worker-service
   kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    # Handle Kafka bootstrap servers for Render deployment
+    # Priority: SPRING_KAFKA_BOOTSTRAP_SERVERS > SPRING_KAFKA_HOST:SPRING_KAFKA_PORT
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:${SPRING_KAFKA_HOST:localhost}:${SPRING_KAFKA_PORT:9092}}
     consumer:
       group-id: order-worker
       auto-offset-reset: earliest

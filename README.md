@@ -232,6 +232,45 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 
 4. Publish `443` behind your cloud load balancer/reverse proxy (HTTPS), and point DNS to that host.
 
+## Render Deployment
+
+This repo includes a Render Blueprint:
+
+- `render.yaml` for full stack provisioning
+- `RENDER_DEPLOY.md` for step-by-step setup
+
+### Quick Deploy
+
+1. Go to [dashboard.render.com](https://dashboard.render.com)
+2. Click **New** → **Blueprint**
+3. Select this repository (`Sayantanmaji2005/scalability-performance`)
+4. Click **Apply Blueprint**
+5. Wait for all services to deploy
+
+### After Deployment - Your Permanent URLs
+
+Once deployed, your services will be available at:
+
+| Service | URL Format |
+|---------|------------|
+| **Frontend** | `https://scalemart-frontend.onrender.com` |
+| **API** | `https://scalemart-api.onrender.com` |
+| **Worker** | `https://scalemart-worker.onrender.com` |
+
+### Verify Deployment
+
+1. **Frontend**: Open `https://scalemart-frontend.onrender.com`
+2. **API Health**: `https://scalemart-api.onrender.com/actuator/health`
+3. **Worker Health**: `https://scalemart-worker.onrender.com/actuator/health`
+
+Expected health response: `{"status":"UP"}`
+
+### Demo Accounts (if seeding enabled)
+
+- Username: `demo@scalemart.dev`
+- Password: `DemoPass123!`
+- Admin: `admin@scalemart.dev` / `AdminPass123!`
+
 ## Key Features Demonstrated
 
 | Feature | Technology | Interview Value |
