@@ -1,3 +1,5 @@
+# ScaleMart Render Blueprint
+# Name: scalemart (used when deploying via Blueprint)
 services:
   - type: keyvalue
     name: scalemart-redis
