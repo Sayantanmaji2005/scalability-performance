@@ -5,9 +5,9 @@ spring:
   application:
     name: backend-api
   datasource:
-    # Handle Render's PostgreSQL URL format (postgres://user:pass@host:port/db)
-    # Priority: DATABASE_URL > JDBC_DATABASE_URL > SPRING_DATASOURCE_URL
-    url: ${DATABASE_URL:${JDBC_DATABASE_URL:${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/scalemart}}}
+    # Handle local/dev and cloud env styles.
+    # Priority: SPRING_DATASOURCE_URL > JDBC_DATABASE_URL > DATABASE_URL
+    url: ${SPRING_DATASOURCE_URL:${JDBC_DATABASE_URL:${DATABASE_URL:jdbc:postgresql://localhost:5432/scalemart}}}
     username: ${SPRING_DATASOURCE_USERNAME:${DATABASE_USERNAME:}}
     password: ${SPRING_DATASOURCE_PASSWORD:${DATABASE_PASSWORD:}}
     hikari:
