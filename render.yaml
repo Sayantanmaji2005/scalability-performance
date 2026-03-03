@@ -3,7 +3,7 @@
 services:
   - type: keyvalue
     name: scalemart-redis
-    plan: free
+    plan: starter
     ipAllowList: []
     maxmemoryPolicy: allkeys-lru
 
@@ -112,4 +112,4 @@ databases:
   - name: scalemart-postgres
     databaseName: scalemart
     user: scalemart
-    plan: free
+    plan: starter
