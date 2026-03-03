@@ -1,0 +1,42 @@
+services:
+  api-1:
+    restart: unless-stopped
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      APP_AUTH_EXPOSE_DEBUG_TOKENS: ${APP_AUTH_EXPOSE_DEBUG_TOKENS:-false}
+      APP_SEED_DEMO_USERS: ${APP_SEED_DEMO_USERS:-false}
+
+  api-2:
+    restart: unless-stopped
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      APP_AUTH_EXPOSE_DEBUG_TOKENS: ${APP_AUTH_EXPOSE_DEBUG_TOKENS:-false}
+      APP_SEED_DEMO_USERS: ${APP_SEED_DEMO_USERS:-false}
+
+  worker:
+    restart: unless-stopped
+
+  nginx:
+    restart: unless-stopped
+    ports:
+      - "${NGINX_HTTPS_BIND:-443:443}"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+
+  prometheus:
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.0
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+    ports:
+      - "127.0.0.1:9093:9093"
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+
+  grafana:
+    restart: unless-stopped

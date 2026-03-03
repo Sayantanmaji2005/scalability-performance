@@ -1,0 +1,20 @@
+groups:
+  - name: scalemart-service-health
+    rules:
+      - alert: BackendApiDown
+        expr: up{job="backend-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend API instance is down"
+          description: "One or more backend API instances have been unreachable for at least 2 minutes."
+
+      - alert: WorkerServiceDown
+        expr: up{job="worker-service"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Worker service is down"
+          description: "The worker service has been unreachable for at least 2 minutes."
